@@ -284,3 +284,42 @@ Tab 切换对应的生命周期（以 A、B 页面为 Tabbar 页面，C 是从 A
 | D | B | D.onUnload(), C.onUnload(), B.onLoad(), B.onShow() |
 | D(从转发进入) | A | D.onUnload(), A.onLoad(), A.onShow() |
 | D(从转发进入) | B | D.onUnload(), B.onLoad(), B.onShow() |
+
+### 组件
+
+<https://mp.weixin.qq.com/debug/wxadoc/dev/component/>
+
+### API
+
+<https://developers.weixin.qq.com/miniprogram/dev/api/>
+
+### 事件
+
+常见的事件类型
+
+- touchstart 手指触摸动作开始
+- touchmove 手指触摸后移动
+- touchcancel 手指触摸动作被打断，如来电提醒，弹窗
+- touchend 手指触摸动作结束
+- tap 手指触摸后马上离开
+- longpress 手指触摸后，超过350ms再离开，如果指定了事件回调函数并触发了这个事件，tap事件将不被触发
+- longtap 手指触摸后，超过350ms再离开（推荐使用longpress事件代替）
+- transitionend 会在 WXSS transition 或 wx.createAnimation 动画结束后触发
+- animationstart 会在一个 WXSS animation 动画开始时触发
+- animationiteration 会在一个 WXSS animation 一次迭代结束时触发
+- animationend 会在一个 WXSS animation 动画完成时触发
+
+
+事件对象属性
+
+| 属性 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| type | String | 事件类型 |
+| timeStamp | Integer | 页面打开到触发事件所经过的毫秒数 |
+| target | Object | 触发事件的组件的一些属性值集合 |
+| currentTarget | Object | 当前组件的一些属性值集合 |
+| detail | Object | 额外的信息 |
+| touches | Array | 触摸事件，当前停留在屏幕中的触摸点信息的数组 |
+| changedTouches | Array | 触摸事件，当前变化的触摸点信息的数组 |
+
+这里需要注意的是target和currentTarget的区别，currentTarget为当前事件所绑定的组件，而target则是触发该事件的源头组件。
