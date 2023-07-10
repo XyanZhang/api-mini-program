@@ -34,3 +34,53 @@ app.json 是当前小程序的全局配置, 包括了小程序的所有页面路
 ### 页面配置 page.json
 
 小程序里边的每个页面都有不一样的色调来区分不同功能模块，因此我们提供了 page.json，让开发者可以独立定义每个页面的一些属性
+
+## WXML 模板
+
+```xml
+<view class="container">
+  <view class="userinfo">
+    <button wx:if="{{!hasUserInfo && canIUse}}"> 获取头像昵称 </button>
+    <block wx:else>
+      <image src="{{userInfo.avatarUrl}}" background-size="cover"></image>
+      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+    </block>
+  </view>
+  <view class="usermotto">
+    <text class="user-motto">{{motto}}</text>
+  </view>
+</view>
+```
+
+```xml
+<text>{{msg}}</text>
+```
+
+```js
+this.setData({ msg: "Hello World" })
+```
+
+## WXSS 样式
+
+<https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxss.html>
+
+> WXSS 在底层支持新的尺寸单位 rpx ,开发者可以免去换算的烦恼，只要交给小程序底层来换算即可，由于换算采用的浮点数运算
+>
+> WXSS 仅支持部分 CSS 选择器
+
+## JS 逻辑交互
+
+<https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/event.html>
+
+```jsx
+<view>{{ msg }}</view>
+<button bindtap="clickMe">点击我</button>
+```
+<!-- 在 JS 文件里边声明了 clickMe 方法来响应这次点击操作： -->
+```js
+Page({
+  clickMe: function() {
+    this.setData({ msg: "Hello World" })
+  }
+})
+```
