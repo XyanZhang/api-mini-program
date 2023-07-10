@@ -179,3 +179,108 @@ App({
 var appInstance = getApp()
 console.log(appInstance.globalData) // 输出: I am global data
 ```
+
+> 注：所有页面的脚本逻辑都跑在同一个JsCore线程，页面使用setTimeout或者setInterval的定时器，然后跳转到其他页面时，这些定时器并没有被清除，需要开发者自己在页面离开的时候进行清理。
+
+### 小程序页面
+
+一个页面是分三部分组成：界面、配置和逻辑。界面由WXML文件和WXSS文件来负责描述，配置由JSON文件进行描述，页面逻辑则是由JS脚本文件负责。
+一个页面的文件需要放置在同一个目录下，其中WXML文件和JS文件是必须存在的，JSON和WXSS文件是可选的。
+
+页面构造器Page()
+
+```js
+Page({
+  data: { text: "This is page data." }, // 页面的初始数据
+  onLoad: function(options) { }, // 生命周期函数--监听页面加载，触发时机早于onShow和onReady
+  onReady: function() { }, // 生命周期函数--监听页面初次渲染完成
+  onShow: function() { }, // 生命周期函数--监听页面显示，触发事件早于onReady
+  onHide: function() { }, // 生命周期函数--监听页面隐藏
+  onUnload: function() { }, // 生命周期函数--监听页面卸载
+  onPullDownRefresh: function() { }, // 页面相关事件处理函数--监听用户下拉动作
+  onReachBottom: function() { }, // 页面上拉触底事件的处理函数
+  onShareAppMessage: function () { }, // 用户点击右上角转发
+  onPageScroll: function() { } // 页面滚动触发事件的处理函数
+  // 其他：可以添加任意的函数或数据，在Page实例的其他函数中用 this 可以访问
+})
+```
+
+**三个事件触发的时机是onLoad早于 onShow，onShow早于onReady**
+
+page demo: 参数query，在列表页打开商品详情页时把商品的id传递过来，详情页通过刚刚说的onLoad回调的参数option就可以拿到商品id，从而绘制出对应的商品
+
+```js
+// pages/list/list.js
+// 列表页使用navigateTo跳转到详情页
+wx.navigateTo({ url: 'pages/detail/detail?id=1&other=abc' })
+
+// pages/detail/detail.js
+Page({
+  onLoad: function(option) {
+        console.log(option.id)
+        console.log(option.other)
+  }
+})
+```
+
+setData()
+
+由于小程序的渲染层和逻辑层分别在两个线程中运行，所以setData传递数据实际是一个异步的过程，所以setData的第二个参数是一个callback回调，在这次setData对界面渲染完毕后触发。
+
+```js
+// page.js
+Page({
+  onLoad: function(){
+    this.setData({
+      text: 'change data'
+    }, function(){
+      // 在这次setData对界面渲染完毕后触发
+    })
+  }
+})
+```
+
+> 注意：
+>
+> 直接修改 Page实例的this.data 而不调用 this.setData 是无法改变页面的状态的，还会造成数据不一致。
+>
+> 由于setData是需要两个线程的一些通信消耗，为了提高性能，每次设置的数据不应超过1024kB。
+>
+> 不要把data中的任意一项的value设为undefined，否则可能会有引起一些不可预料的bug。
+
+### 页面跳转
+
+- 通过wx.navigateTo推入一个新的页面， 小程序宿主环境限制了这个页面栈的最大层级为10层（写文档的时候是10）
+
+```js
+wx.navigateTo({ url: 'pageD' })  // 往当前页面栈多推入一个pageD页面
+wx.navigateBack()  // 可以退出当前页面栈的最顶上页
+wx.redirectTo({ url: 'pageE' }) // 是替换当前页变成pageE
+```
+
+小程序提供了原生的Tabbar支持，我们可以在app.json声明tabBar字段来定义Tabbar页
+> wx.navigateTo和wx.redirectTo只能打开非TabBar页面，wx.switchTab只能打开Tabbar页面。
+
+**页面路由触发方式及页面生命周期函数的对应关系**
+
+| 路由方式 | 触发时机 | 路由前页面生命周期 | 路由后页面生命周期 |
+| :--- | :--- | :--- | :--- |
+| 初始化 | 小程序打开的第一个页面 |  | onLoad, onShow |
+| 打开新页面 | 调用 API wx.navigateTo  | onHide | onLoad, onShow |
+| 页面重定向 | 调用 API wx.redirectTo  | onUnload | onLoad, onShow |
+| 页面返回 | 调用 API wx.navigateBack  | onUnload | onShow |
+| Tab 切换 | 调用 API wx.switchTab | 请参考表3-6 | 请参考表3-6 | 请参考表3-6 |
+| 重启动 | 调用 API wx.reLaunch  | onUnload | onLoad, onShow |
+
+Tab 切换对应的生命周期（以 A、B 页面为 Tabbar 页面，C 是从 A 页面打开的页面，D 页面是从 C 页面打开的页面为例）如表3-6所示，注意**Tabbar页面初始化之后不会被销毁**。
+
+| 当前页面 | 路由后页面 | 触发的生命周期（按顺序） |
+| :--- | :--- | :--- |
+| A | A | 无 |
+| A | B | A.onHide(), B.onLoad(), B.onShow() |
+| A | B(再次打开) | A.onHide(), B.onShow() |
+| C | A | C.onUnload(), A.onShow() |
+| C | B | C.onUnload(), B.onLoad(), B.onShow() |
+| D | B | D.onUnload(), C.onUnload(), B.onLoad(), B.onShow() |
+| D(从转发进入) | A | D.onUnload(), A.onLoad(), A.onShow() |
+| D(从转发进入) | B | D.onUnload(), B.onLoad(), B.onShow() |
