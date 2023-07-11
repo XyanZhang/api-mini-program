@@ -593,3 +593,139 @@ URL的query部分的参数中 `<AppId>`, `<AppSecret>`, `<code>` 就是前文所
 
 ### 业务登录凭证SessionId
 
+## 本地数据缓存
+
+### 读写本地数据缓存
+
+小程序提供了读写本地数据缓存的接口，通过wx.getStorage/wx.getStorageSync读取本地缓存，通过wx.setStorage/wx.setStorageSync写数据到缓存，其中Sync后缀的接口表示是同步接口，执行完毕之后会立马返回
+
+```js
+wx.getStorage({
+  key: 'key1',
+  success: function(res) {
+    // 异步接口在success回调才能拿到返回值
+    var value1 = res.data
+  },
+  fail: function() {
+    console.log('读取key1发生错误')
+  },
+  // complete: function() {}  //Function 否 异步接口调用结束的回调函数（调用成功、失败都会执行）
+})
+
+
+try{
+  // 同步接口立即返回值
+  var value2 = wx.getStorageSync('key2')
+}catch (e) {
+  console.log('读取key2发生错误')
+}
+```
+
+```js
+// 异步接口在success/fail回调才知道写入成功与否
+wx.setStorage({
+  key:"key",
+  data:"value1"
+  success: function() {
+    console.log('写入value1成功')
+  },
+  fail: function() {
+    console.log('写入value1发生错误')
+  }
+})
+
+
+try{
+  // 同步接口立即写入
+  wx.setStorageSync('key', 'value2')
+  console.log('写入value2成功')
+}catch (e) {
+  console.log('写入value2发生错误')
+}
+```
+
+> 注：每个小程序的缓存空间上限为**10MB**，如果当前缓存已经达到10MB，再通过wx.setStorage写入缓存会触发fail回调
+
+### 利用本地缓存提前渲染界面
+
+场景：对数据实时性/一致性要求不高的页面
+```js
+Page({
+  onLoad: function() {
+    var that = this
+    var list =wx.getStorageSync("list")
+    if (list) { // 本地如果有缓存列表，提前渲染
+      that.setData({
+        list: list
+      })
+    }
+    wx.request({
+      url: 'https://test.com/getproductlist',
+      success: function (res) {
+        if (res.statusCode === 200) {
+          list = res.data.list
+          that.setData({ // 再次渲染列表
+            list: list
+          })
+          wx.setStorageSync("list",list) // 覆盖缓存数据
+        }
+      }
+    })
+  }
+})
+```
+
+### 缓存用户登录态SessionId
+
+```js
+//page.js
+
+var app = getApp()
+
+Page({
+  onLoad: function() {
+    // 调用wx.login获取微信登录凭证
+    wx.login({
+      success: function(res) {
+        // 拿到微信登录凭证之后去自己服务器换取自己的登录凭证
+        wx.request({
+          url: 'https://test.com/login',
+          data: { code: res.code },
+          success: function(res) {
+            var data = res.data
+            // 把 SessionId 和过期时间放在内存中的全局对象和本地缓存里边
+            app.globalData.sessionId =data.sessionId
+            wx.setStorageSync('SESSIONID',data.sessionId)
+            // 假设登录态保持1天
+            var expiredTime = +new Date() +1*24*60*60*1000
+            app.globalData.expiredTime =expiredTime
+            wx.setStorageSync('EXPIREDTIME',expiredTime)
+          }
+        })
+      }
+    })
+  }
+})
+```
+
+在重新打开小程序的时候，我们把上一次存储的SessionId内容取出来，恢复到内存
+
+```js
+//app.js
+
+App({
+  onLaunch: function(options) {
+    var sessionId =wx.getStorageSync('SESSIONID')
+    var expiredTime =wx.getStorageSync('EXPIREDTIME')
+    var now = +new Date()
+    if (now - expiredTime <=1*24*60*60*1000) {
+      this.globalData.sessionId = sessionId
+      this.globalData.expiredTime = expiredTime
+    }
+  },
+  globalData: {
+    sessionId: null,
+    expiredTime: 0
+  }
+})
+```
