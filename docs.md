@@ -309,7 +309,6 @@ Tab 切换对应的生命周期（以 A、B 页面为 Tabbar 页面，C 是从 A
 - animationiteration 会在一个 WXSS animation 一次迭代结束时触发
 - animationend 会在一个 WXSS animation 动画完成时触发
 
-
 事件对象属性
 
 | 属性 | 类型 | 说明 |
@@ -323,3 +322,108 @@ Tab 切换对应的生命周期（以 A、B 页面为 Tabbar 页面，C 是从 A
 | changedTouches | Array | 触摸事件，当前变化的触摸点信息的数组 |
 
 这里需要注意的是target和currentTarget的区别，currentTarget为当前事件所绑定的组件，而target则是触发该事件的源头组件。
+
+## 应用
+
+### flex 布局
+
+### 交互反馈
+
+**触摸反馈**
+
+```jsx
+// /*page.wxss */
+.hover{
+  background-color: gray;
+}
+
+// <!--page.wxml -->
+<button hover-class="hover"> 点击button </button>
+<view hover-class="hover"> 点击view</view>
+```
+
+**button loading**
+
+```jsx
+// <!--page.wxml -->
+<button loading="{{loading}}" bindtap="tap">操作</button>
+//page.js
+Page({
+  data: { loading: false },
+  tap: function() {
+    // 把按钮的loading状态显示出来
+    this.setData({
+      loading: true
+    })
+    // 接着做耗时的操作
+  }
+})
+```
+
+**Toast和模态对话框**
+
+```jsx
+Page({
+  onLoad: function() {
+    wx.showToast({ // 显示Toast
+      title: '已发送',
+      icon: 'success',
+      duration: 1500
+    })
+    // wx.hideToast() // 隐藏Toast
+  }
+})
+```
+
+```jsx
+Page({
+  onLoad: function() {
+    wx.showModal({
+      title: '标题',
+      content: '告知当前状态，信息和解决方法',
+      confirmText: '主操作',
+      cancelText: '次要操作',
+      success: function(res) {
+        if (res.confirm) {
+          console.log('用户点击主操作')
+        } else if (res.cancel) {
+          console.log('用户点击次要操作')
+        }
+      }
+    })
+  }
+})
+```
+
+**下拉刷新**
+
+```jsx
+//page.json
+{"enablePullDownRefresh": true }
+
+//page.js
+Page({
+  onPullDownRefresh: function() {
+    // 用户触发了下拉刷新操作
+    // 拉取新数据重新渲染界面
+    // wx.stopPullDownRefresh() // 可以停止当前页面的下拉刷新。
+  }
+})
+```
+
+**上拉触底**
+
+```jsx
+//page.json
+// 界面的下方距离页面底部距离小于onReachBottomDistance像素时触发onReachBottom回调
+{"onReachBottomDistance": 100 }
+
+//page.js
+Page({
+  onReachBottom: function() {
+    // 当界面的下方距离页面底部距离小于100像素时触发回调
+  }
+})
+```
+
+### HTTPS网络通信
