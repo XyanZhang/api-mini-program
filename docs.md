@@ -762,3 +762,20 @@ Component({
 ```
 
 > 猜想：Component作为组件，pageLifetimes中的 show 触发时进行样式选中切换
+
+### 事件交互
+
+在微信小程序中，可以使用以下几种方法在绑定函数时传递值：
+
+```jsx
+// html
+<button data-value="example" bindtap="handleClick">按钮</button>
+
+// js
+Page({
+  handleClick(e) {
+    const value = e.currentTarget.dataset.value; // 获取data-value 的值
+    console.log(value); // 输出 "example"
+  }
+});
+```
