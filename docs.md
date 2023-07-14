@@ -790,3 +790,64 @@ Page({
   padding-left: 0;
 }
 ```
+
+设置顶部菜单背景色
+
+```jsx
+// js 代码方式
+// 在页面的代码中调用以下方法
+wx.setNavigationBarColor({
+  frontColor: '#ffffff', // 前景颜色，即按钮上的图标和文字颜色
+  backgroundColor: '#ff0000', // 背景颜色，即按钮的背景色
+  success: function() {
+    console.log('顶部菜单按钮背景色设置成功');
+  },
+  fail: function(err) {
+    console.log('顶部菜单按钮背景色设置失败', err);
+  }
+});
+
+// 全局配置 app.json
+{
+  "window": {
+    "navigationBarBackgroundColor": "#ff0000", // 背景颜色
+    "navigationBarTextStyle": "white" // 文字样式
+  }
+}
+
+// 单页面配置 xx.json
+{
+  "navigationBarBackgroundColor": "#ff0000", // 背景颜色
+  "navigationBarTextStyle": "white" // 文字样式
+}
+
+// 注：不支持 渐变
+// 如要使用渐变，可以使用以下方式：
+// 1. 使用图片
+// 配置图片路径： "navigationBarBackgroundImage": "xxx.png"
+// 2. 使用自定义navigationBar
+
+<view class="custom-navigation">
+  <linear-gradient direction="vertical" colors="#D5E1FF, #F5F6F9"></linear-gradient>
+  {/* <!-- 其他自定义内容，例如标题和按钮 --> */}
+</view>
+/* custom-navigation.wxss */
+.custom-navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+}
+
+linear-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+// <!-- example.wxml -->
+<custom-navigation></custom-navigation>
+// <!-- 页面其他内容 -->
+```
