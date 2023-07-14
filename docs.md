@@ -649,6 +649,7 @@ try{
 ### 利用本地缓存提前渲染界面
 
 场景：对数据实时性/一致性要求不高的页面
+
 ```js
 Page({
   onLoad: function() {
@@ -778,4 +779,14 @@ Page({
     console.log(value); // 输出 "example"
   }
 });
+```
+
+### css
+
+可以使用的伪类：
+
+```css
+.tab:nth-child(1) {
+  padding-left: 0;
+}
 ```
