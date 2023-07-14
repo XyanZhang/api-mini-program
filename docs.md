@@ -729,3 +729,36 @@ App({
   }
 })
 ```
+
+### tabbar
+
+页面切换但是样式不切换，有可能是 页面是 `Page` 包裹，而非 `Component` 包裹，
+
+```js
+// Page: 在index `onLoad` 生命周期 中调用 `this.getTabBar && this.getTabBar().setData({selected: 1})` 进行切换
+tabbarSelect() {
+  if (typeof this.getTabBar === 'function' ) {
+    this.getTabBar().setData({
+      selected: 1
+    })
+  }
+},
+```
+
+```js
+// Component
+Component({
+  pageLifetimes: {
+    show() {
+      if (typeof this.getTabBar === 'function' &&
+        this.getTabBar()) {
+        this.getTabBar().setData({
+          selected: 0
+        })
+      }
+    }
+  }
+})
+```
+
+> 猜想：Component作为组件，pageLifetimes中的 show 触发时进行样式选中切换
