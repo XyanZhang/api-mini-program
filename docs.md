@@ -858,3 +858,7 @@ linear-gradient {
   const currentPage = getCurrentPages().pop();
   const { xxx } = currentPage.options;
 ```
+
+### 注意
+
+在微信小程序的wxml中，{{}}主要用来显示变量值或表达式结果，而不能直接调用函数。但你可以在Page或Component中调用函数，并将结果赋给数据变量，然后在wxml中使用数据变量来显示函数的结果。
