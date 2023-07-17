@@ -851,3 +851,10 @@ linear-gradient {
 <custom-navigation></custom-navigation>
 // <!-- 页面其他内容 -->
 ```
+
+### 获取url上参数
+
+```js
+  const currentPage = getCurrentPages().pop();
+  const { xxx } = currentPage.options;
+```
