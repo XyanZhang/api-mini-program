@@ -862,3 +862,33 @@ linear-gradient {
 ### 注意
 
 在微信小程序的wxml中，{{}}主要用来显示变量值或表达式结果，而不能直接调用函数。但你可以在Page或Component中调用函数，并将结果赋给数据变量，然后在wxml中使用数据变量来显示函数的结果。
+
+### 微信小程序 swiper 切换事件监听
+
+```jsx
+  <swiper
+    current="{{currentIndex}}"
+    class="swiper-contain"
+    duration="{{500}}"
+    easing-function="{{easeInOutCubic}}"
+    bindchange="questionChange"
+  >
+    <swiper-item></swiper-item>
+    <swiper-item></swiper-item>
+    <swiper-item></swiper-item>
+  </swiper>
+```
+
+### 安装lodash
+
+如果npm安装lodash 会导致以下问题
+
+```txt
+[JS 文件编译错误] 以下文件体积超过 500KB，已跳过压缩以及 ES6 转 ES5 的处理。
+miniprogram_npm/lodash/index.js
+```
+
+解决办法：
+
+- 按需引入：`import assign from 'lodash/assign';`
+- 引入lodash-es: `import _ from 'lodash-es';`
