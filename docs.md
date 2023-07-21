@@ -646,6 +646,22 @@ try{
 
 > 注：每个小程序的缓存空间上限为**10MB**，如果当前缓存已经达到10MB，再通过wx.setStorage写入缓存会触发fail回调
 
+**移除缓存**
+
+```js
+try {
+  wx.clearStorageSync()
+} catch(e) {
+  // Do something when catch error
+}
+// 异步
+wx.clearStorage({
+  success: function(res) {},
+  fail: function(res) {},
+  complete: function(res){}
+})
+```
+
 ### 利用本地缓存提前渲染界面
 
 场景：对数据实时性/一致性要求不高的页面
