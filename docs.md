@@ -908,3 +908,13 @@ miniprogram_npm/lodash/index.js
 
 - 按需引入：`import assign from 'lodash/assign';`
 - 引入lodash-es: `import _ from 'lodash-es';`
+
+## promise 异常
+
+在微信小程序中，try-catch语句可以捕获一些特定的异步操作的reject，但并不是所有类型的异步操作都可以被捕获。
+
+微信小程序框架对某些异步操作进行了封装和处理，使得它们可以被try-catch语句捕获到。例如，使用微信小程序的API进行文件读写或网络请求时，如果发生异常，try-catch语句可以捕获到。
+
+然而，对于所有类型的Promise对象，包括在微信小程序中构造的Promise对象，try-catch语句无法直接捕获其reject。如果Promise对象的状态是异步转换的，try-catch语句无法捕获到异常。
+
+所以，虽然你在微信小程序中使用try-catch语句可以捕获到某些特定的异步操作的reject，但这不是Promise对象的通用行为。为了捕获Promise的reject，仍然需要使用Promise的catch方法或者使用async/await语法来处理异步操作。
